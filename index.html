@@ -59,6 +59,8 @@ body{background:var(--white);color:var(--text);font-family:'Barlow',sans-serif;}
 .fbtn{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border:1.5px solid var(--gray2);border-radius:2px;background:#fff;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .fbtn:hover{border-color:var(--black);color:var(--black);}
 .fbtn.active{background:var(--black);border-color:var(--black);color:#fff;}
+.filter-instructions{padding:8px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border-bottom:1px solid var(--gray2);font-family:'Barlow',sans-serif;font-size:11px;color:var(--text2);}
+.filter-instructions b{font-weight:700;color:var(--text);}
 .sep{width:1px;height:20px;background:var(--gray2);margin:0 4px;align-self:center;}
 .advanced-filters{background:#f7f7f7;border-bottom:1px solid var(--gray2);padding:14px 28px;}
 .advanced-filters-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px;}
@@ -236,6 +238,7 @@ body{background:var(--white);color:var(--text);font-family:'Barlow',sans-serif;}
 
 <!-- CATALOGO -->
 <div class="view" id="catView">
+  <div class="filter-instructions"><span><b>Filtros:</b> selecciona varios valores en cada categoría</span><button type="button" class="advanced-clear" onclick="clearAllFilters()">Limpiar todos</button></div>
   <div class="filters-wrap">
     <span class="fl">Imagen</span>
     <div class="filter-group" id="fImgG">
@@ -304,7 +307,7 @@ const SIZE_ORDER=['XXS','XS','S','M','L','XL','2XL','XXL','3XL','4XL'];
 const ESTLBL={on:'PRENDIDO',off:'APAGADO',na:'SIN ESTATUS'};
 const ESTSHORT={on:'Prendido',off:'Apagado',na:'Sin estatus'};
 const ESTSYM={on:'✓',off:'✕',na:'–'};
-let fImg='all',fAppr='all',fErp='all',fDiv='all',fBU='all',fEdad='all',fGen='all';
+const FILTER_SETS={img:new Set(),appr:new Set(),erp:new Set(),div:new Set(),bu:new Set(),edad:new Set(),gen:new Set()};
 let fRetail=new Set(),fSeason=new Set(),fHistorias=new Set();
 const MULTI_FILTERS={
   retail:{id:'fRetailG',key:'retail_intro_date',label:'Retail Intro Date',state:fRetail,empty:'Todas las fechas'},
@@ -378,6 +381,7 @@ function buildFilterButtons(){
   const gg=document.getElementById('fGenG');
   gg.innerHTML='<button class="fbtn active" onclick="setFilter(\'gen\',\'all\',this)">Todos</button>'+
     gens.map(g=>`<button class="fbtn" onclick="setFilter('gen','${g}',this)">${g}</button>`).join('');
+  document.querySelectorAll('.filters-wrap .fbtn').forEach(b=>b.setAttribute('aria-pressed',String(b.classList.contains('active'))));
   Object.keys(MULTI_FILTERS).forEach(buildMultiFilter);
 }
 function dateSort(a,b){
@@ -477,25 +481,39 @@ document.addEventListener('keydown',e=>{
 });
 function setFilter(type,val,btn){
   const groupMap={img:'fImgG',appr:'fApprG',erp:'fErpG',div:'fDivG',bu:'fBuG',edad:'fEdadG',gen:'fGenG'};
-  document.querySelectorAll('#'+groupMap[type]+' .fbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  if(type==='img')fImg=val; if(type==='appr')fAppr=val; if(type==='erp')fErp=val;
-  if(type==='div')fDiv=val; if(type==='bu')fBU=val;
-  if(type==='edad')fEdad=val; if(type==='gen')fGen=val;
+  const state=FILTER_SETS[type];
+  if(val==='all')state.clear();
+  else state.has(val)?state.delete(val):state.add(val);
+  const group=document.getElementById(groupMap[type]);
+  const all=group.querySelector('.fbtn');
+  all.classList.toggle('active',state.size===0);
+  all.setAttribute('aria-pressed',String(state.size===0));
+  if(val!=='all'){
+    btn.classList.toggle('active',state.has(val));
+    btn.setAttribute('aria-pressed',String(state.has(val)));
+  }else group.querySelectorAll('.fbtn:not(:first-child)').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false');});
   render();
+}
+function clearAllFilters(){
+  const groupMap={img:'fImgG',appr:'fApprG',erp:'fErpG',div:'fDivG',bu:'fBuG',edad:'fEdadG',gen:'fGenG'};
+  Object.entries(FILTER_SETS).forEach(([type,state])=>{
+    state.clear();
+    document.querySelectorAll('#'+groupMap[type]+' .fbtn').forEach((b,i)=>{b.classList.toggle('active',i===0);b.setAttribute('aria-pressed',String(i===0));});
+  });
+  document.getElementById('searchInput').value='';
+  clearAdvancedFilters();
 }
 function getFiltered(){
   const q=(document.getElementById('searchInput').value||'').toLowerCase().trim();
   return P.filter(p=>{
     if(q && !p.nombre.toLowerCase().includes(q) && !p.sku.toLowerCase().includes(q))return false;
-    if(fImg==='con'&&!p.imagen)return false;
-    if(fImg==='sin'&&p.imagen)return false;
-    if(fAppr!=='all'&&p.approval!==fAppr)return false;
-    if(fErp!=='all'&&p.erp!==fErp)return false;
-    if(fDiv!=='all'&&p.division!==fDiv)return false;
-    if(fBU!=='all'&&p.bu!==fBU)return false;
-    if(fEdad!=='all'&&p.edad!==fEdad)return false;
-    if(fGen!=='all'&&p.genero!==fGen)return false;
+    if(FILTER_SETS.img.size&&!FILTER_SETS.img.has(p.imagen?'con':'sin'))return false;
+    if(FILTER_SETS.appr.size&&!FILTER_SETS.appr.has(p.approval))return false;
+    if(FILTER_SETS.erp.size&&!FILTER_SETS.erp.has(p.erp))return false;
+    if(FILTER_SETS.div.size&&!FILTER_SETS.div.has(p.division))return false;
+    if(FILTER_SETS.bu.size&&!FILTER_SETS.bu.has(p.bu))return false;
+    if(FILTER_SETS.edad.size&&!FILTER_SETS.edad.has(p.edad))return false;
+    if(FILTER_SETS.gen.size&&!FILTER_SETS.gen.has(p.genero))return false;
     if(fRetail.size&&!fRetail.has(p.retail_intro_date))return false;
     if(fSeason.size&&!fSeason.has(p.season))return false;
     if(fHistorias.size&&!fHistorias.has(p.historias))return false;
