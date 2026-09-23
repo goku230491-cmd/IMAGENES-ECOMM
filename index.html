@@ -60,6 +60,41 @@ body{background:var(--white);color:var(--text);font-family:'Barlow',sans-serif;}
 .fbtn:hover{border-color:var(--black);color:var(--black);}
 .fbtn.active{background:var(--black);border-color:var(--black);color:#fff;}
 .sep{width:1px;height:20px;background:var(--gray2);margin:0 4px;align-self:center;}
+.advanced-filters{background:#f7f7f7;border-bottom:1px solid var(--gray2);padding:14px 28px;}
+.advanced-filters-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px;}
+.advanced-filters-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:1.7px;text-transform:uppercase;color:var(--text2);}
+.advanced-filters-hint{font-family:'Barlow',sans-serif;font-size:11px;color:var(--gray3);margin-left:8px;letter-spacing:0;text-transform:none;font-weight:500;}
+.advanced-clear{border:0;background:none;color:var(--red);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.advanced-clear:disabled{color:var(--gray3);cursor:default;}
+.advanced-filter-controls{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:10px;}
+.multi-select{position:relative;min-width:0;}
+.multi-trigger{width:100%;height:42px;border:1px solid #d5d5d5;border-radius:3px;background:#fff;padding:6px 11px;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;}
+.multi-trigger:hover,.multi-trigger[aria-expanded="true"]{border-color:var(--black);}
+.multi-trigger:disabled{background:#f1f1f1;border-color:var(--gray2);cursor:default;}
+.multi-trigger:disabled .multi-trigger-value{color:var(--gray3);}
+.multi-trigger.has-selection{border-color:var(--black);box-shadow:inset 3px 0 var(--red);}
+.multi-trigger-text{min-width:0;flex:1;}
+.multi-trigger-label{display:block;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--text2);}
+.multi-trigger-value{display:block;font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.multi-chevron{font-size:12px;color:var(--text2);transition:transform .15s;}
+.multi-trigger[aria-expanded="true"] .multi-chevron{transform:rotate(180deg);}
+.multi-panel{position:absolute;top:calc(100% + 4px);left:0;width:min(340px,calc(100vw - 40px));background:#fff;border:1px solid #d5d5d5;box-shadow:0 10px 30px rgba(0,0,0,.15);z-index:300;padding:12px;}
+.multi-panel[hidden]{display:none;}
+.multi-search{width:100%;height:34px;border:1px solid var(--gray2);border-radius:2px;padding:6px 9px;font-family:'Barlow',sans-serif;font-size:12px;outline:none;}
+.multi-search:focus{border-color:var(--black);}
+.multi-year{width:100%;height:32px;margin-top:8px;border:1px solid var(--gray2);border-radius:2px;background:#fff;font-family:'Barlow',sans-serif;font-size:12px;}
+.multi-options{max-height:250px;overflow-y:auto;margin:9px -4px 0;padding:0 4px;}
+.multi-option{display:flex;align-items:center;gap:9px;min-height:31px;padding:5px 7px;cursor:pointer;font-family:'Barlow',sans-serif;font-size:12px;}
+.multi-option:hover{background:var(--gray);}
+.multi-option input{accent-color:var(--red);width:15px;height:15px;flex-shrink:0;}
+.multi-empty{padding:12px 6px;color:var(--gray3);font-size:12px;}
+.multi-panel-foot{border-top:1px solid var(--gray2);margin-top:8px;padding-top:9px;display:flex;justify-content:space-between;align-items:center;font-family:'Barlow',sans-serif;font-size:11px;color:var(--text2);}
+.multi-panel-foot button{border:0;background:none;color:var(--red);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;text-transform:uppercase;cursor:pointer;}
+.selected-filters{display:none;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center;}
+.selected-filters.visible{display:flex;}
+.selected-chip{border:1px solid #d5d5d5;background:#fff;border-radius:2px;padding:5px 8px;font-family:'Barlow',sans-serif;font-size:11px;cursor:pointer;}
+.selected-chip:hover{border-color:var(--red);color:var(--red);}
+@media(max-width:650px){.advanced-filter-controls{grid-template-columns:1fr;}.advanced-filters-hint{display:none;}.multi-panel{width:100%;}}
 .stats-row{background:#fff;border-bottom:1px solid var(--gray2);padding:8px 28px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
 .stat-item{display:flex;align-items:baseline;gap:6px;}
 .stat-val{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;}
@@ -234,12 +269,17 @@ body{background:var(--white);color:var(--text);font-family:'Barlow',sans-serif;}
     <span class="sep"></span>
     <span class="fl">Género</span><div class="filter-group" id="fGenG"></div>
   </div>
-  <div class="filters-wrap" style="padding-top:8px;padding-bottom:8px;">
-    <span class="fl">Retail Intro Date</span><div class="filter-group multi-filter" id="fRetailG"></div>
-    <span class="sep"></span>
-    <span class="fl">Season</span><div class="filter-group multi-filter" id="fSeasonG"></div>
-    <span class="sep"></span>
-    <span class="fl">Historias</span><div class="filter-group multi-filter" id="fHistoriasG"></div>
+  <div class="advanced-filters">
+    <div class="advanced-filters-head">
+      <div class="advanced-filters-title">Más filtros <span class="advanced-filters-hint">Puedes elegir varios valores en cada campo</span></div>
+      <button type="button" class="advanced-clear" id="clearAdvanced" onclick="clearAdvancedFilters()" disabled>Limpiar selección</button>
+    </div>
+    <div class="advanced-filter-controls">
+      <div class="multi-select" id="fRetailG"></div>
+      <div class="multi-select" id="fSeasonG"></div>
+      <div class="multi-select" id="fHistoriasG"></div>
+    </div>
+    <div class="selected-filters" id="selectedFilters"></div>
   </div>
   <div class="stats-row">
     <div class="stat-item"><span class="stat-val" id="sTotal">0</span><span class="stat-lbl">Estilos</span></div>
@@ -266,6 +306,11 @@ const ESTSHORT={on:'Prendido',off:'Apagado',na:'Sin estatus'};
 const ESTSYM={on:'✓',off:'✕',na:'–'};
 let fImg='all',fAppr='all',fErp='all',fDiv='all',fBU='all',fEdad='all',fGen='all';
 let fRetail=new Set(),fSeason=new Set(),fHistorias=new Set();
+const MULTI_FILTERS={
+  retail:{id:'fRetailG',key:'retail_intro_date',label:'Retail Intro Date',state:fRetail,empty:'Todas las fechas'},
+  season:{id:'fSeasonG',key:'season',label:'Season',state:fSeason,empty:'Todas las temporadas'},
+  historias:{id:'fHistoriasG',key:'historias',label:'Historias',state:fHistorias,empty:'Todas las historias'}
+};
 let charts={};
 
 function setView(v){
@@ -333,24 +378,103 @@ function buildFilterButtons(){
   const gg=document.getElementById('fGenG');
   gg.innerHTML='<button class="fbtn active" onclick="setFilter(\'gen\',\'all\',this)">Todos</button>'+
     gens.map(g=>`<button class="fbtn" onclick="setFilter('gen','${g}',this)">${g}</button>`).join('');
-  buildMultiFilter('fRetailG','retail_intro_date',fRetail,'Todas las fechas');
-  buildMultiFilter('fSeasonG','season',fSeason,'Todas las temporadas');
-  buildMultiFilter('fHistoriasG','historias',fHistorias,'Todas las historias');
+  Object.keys(MULTI_FILTERS).forEach(buildMultiFilter);
 }
-function buildMultiFilter(id,key,state,allLabel){
-  const group=document.getElementById(id);
-  const values=[...new Set(P.map(p=>p[key]||'Sin dato'))].sort((a,b)=>a.localeCompare(b,'es'));
-  const all=document.createElement('button');
-  all.className='fbtn active'; all.textContent=allLabel;
-  all.onclick=()=>{state.clear();buildMultiFilter(id,key,state,allLabel);render();};
-  group.replaceChildren(all);
-  values.forEach(value=>{
-    const btn=document.createElement('button'); btn.className='fbtn'+(state.has(value)?' active':''); btn.textContent=value;
-    btn.onclick=()=>{state.has(value)?state.delete(value):state.add(value);buildMultiFilter(id,key,state,allLabel);render();};
-    group.appendChild(btn);
+function dateSort(a,b){
+  if(a==='Sin dato')return 1;
+  if(b==='Sin dato')return -1;
+  const parts=s=>{const [d,m,y]=s.split('/').map(Number);return y*10000+m*100+d;};
+  return parts(b)-parts(a);
+}
+function buildMultiFilter(name){
+  const f=MULTI_FILTERS[name];
+  f.values=[...new Set(P.map(p=>p[f.key]||'Sin dato'))].sort(name==='retail'?dateSort:(a,b)=>a.localeCompare(b,'es'));
+  const group=document.getElementById(f.id);
+  const trigger=document.createElement('button');
+  trigger.type='button'; trigger.className='multi-trigger'; trigger.setAttribute('aria-expanded','false');
+  trigger.disabled=name==='season'&&f.values.length===1&&f.values[0]==='Sin dato';
+  trigger.setAttribute('aria-controls',f.id+'Panel');
+  trigger.innerHTML='<span class="multi-trigger-text"><span class="multi-trigger-label"></span><span class="multi-trigger-value"></span></span><span class="multi-chevron" aria-hidden="true">▾</span>';
+  trigger.querySelector('.multi-trigger-label').textContent=f.label;
+  trigger.onclick=()=>toggleMulti(name);
+  const panel=document.createElement('div');
+  panel.className='multi-panel'; panel.id=f.id+'Panel'; panel.hidden=true;
+  const search=document.createElement('input');
+  search.type='search'; search.className='multi-search'; search.placeholder=name==='retail'?'Buscar fecha (dd/mm/aaaa)':'Buscar valor';
+  search.setAttribute('aria-label','Buscar en '+f.label);
+  search.oninput=()=>renderMultiOptions(name);
+  panel.appendChild(search);
+  if(name==='retail'){
+    const year=document.createElement('select');year.className='multi-year';year.setAttribute('aria-label','Filtrar por año');
+    const years=[...new Set(f.values.filter(v=>v!=='Sin dato').map(v=>v.slice(-4)))].sort().reverse();
+    [['','Todos los años'],...years.map(y=>[y,y])].forEach(([value,label])=>{const opt=document.createElement('option');opt.value=value;opt.textContent=label;year.appendChild(opt);});
+    year.onchange=()=>renderMultiOptions(name);
+    panel.appendChild(year);
+  }
+  const options=document.createElement('div');options.className='multi-options';options.setAttribute('role','group');options.setAttribute('aria-label',f.label);
+  panel.appendChild(options);
+  const foot=document.createElement('div');foot.className='multi-panel-foot';
+  const count=document.createElement('span');foot.appendChild(count);
+  const clear=document.createElement('button');clear.type='button';clear.textContent='Limpiar';
+  clear.onclick=()=>{f.state.clear();updateMultiUI();renderMultiOptions(name);render();};
+  foot.appendChild(clear);panel.appendChild(foot);
+  group.replaceChildren(trigger,panel);
+  f.trigger=trigger;f.panel=panel;f.search=search;f.options=options;f.count=count;
+  renderMultiOptions(name);
+  updateMultiUI();
+}
+function renderMultiOptions(name){
+  const f=MULTI_FILTERS[name];
+  const q=f.search.value.trim().toLocaleLowerCase('es');
+  const year=name==='retail'?f.panel.querySelector('.multi-year').value:'';
+  const shown=f.values.filter(v=>(!q||v.toLocaleLowerCase('es').includes(q))&&(!year||v.endsWith(year)));
+  f.options.replaceChildren();
+  shown.forEach(value=>{
+    const label=document.createElement('label');label.className='multi-option';
+    const check=document.createElement('input');check.type='checkbox';check.checked=f.state.has(value);
+    check.onchange=()=>{check.checked?f.state.add(value):f.state.delete(value);updateMultiUI();render();};
+    const span=document.createElement('span');span.textContent=value;
+    label.append(check,span);f.options.appendChild(label);
   });
-  all.classList.toggle('active',state.size===0);
+  if(!shown.length){const empty=document.createElement('div');empty.className='multi-empty';empty.textContent='No hay valores que coincidan';f.options.appendChild(empty);}
+  f.count.textContent=shown.length+' valores · '+f.state.size+' seleccionados';
 }
+function toggleMulti(name){
+  const f=MULTI_FILTERS[name];
+  const opening=f.panel.hidden;
+  Object.values(MULTI_FILTERS).forEach(x=>{x.panel.hidden=true;x.trigger.setAttribute('aria-expanded','false');});
+  if(opening){f.panel.hidden=false;f.trigger.setAttribute('aria-expanded','true');f.search.focus();}
+}
+function updateMultiUI(){
+  const chips=document.getElementById('selectedFilters');chips.replaceChildren();
+  let total=0;
+  Object.entries(MULTI_FILTERS).forEach(([name,f])=>{
+    if(!f.trigger)return;
+    const selected=[...f.state];total+=selected.length;
+    f.trigger.classList.toggle('has-selection',selected.length>0);
+    f.trigger.querySelector('.multi-trigger-value').textContent=f.trigger.disabled?'Sin datos en el export':selected.length===0?f.empty:selected.length===1?selected[0]:selected.length+' valores seleccionados';
+    if(f.count)f.count.textContent=f.values.length+' valores · '+selected.length+' seleccionados';
+    selected.slice(0,5).forEach(value=>{
+      const chip=document.createElement('button');chip.type='button';chip.className='selected-chip';
+      chip.textContent=f.label+': '+value+' ×';chip.setAttribute('aria-label','Quitar '+value+' de '+f.label);
+      chip.onclick=()=>{f.state.delete(value);updateMultiUI();renderMultiOptions(name);render();};
+      chips.appendChild(chip);
+    });
+    if(selected.length>5){const more=document.createElement('span');more.className='selected-chip';more.textContent='+'+(selected.length-5)+' más en '+f.label;chips.appendChild(more);}
+  });
+  chips.classList.toggle('visible',total>0);
+  document.getElementById('clearAdvanced').disabled=total===0;
+}
+function clearAdvancedFilters(){
+  Object.entries(MULTI_FILTERS).forEach(([name,f])=>{f.state.clear();renderMultiOptions(name);});
+  updateMultiUI();render();
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.multi-select'))Object.values(MULTI_FILTERS).forEach(f=>{f.panel.hidden=true;f.trigger.setAttribute('aria-expanded','false');});
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')Object.values(MULTI_FILTERS).forEach(f=>{f.panel.hidden=true;f.trigger.setAttribute('aria-expanded','false');});
+});
 function setFilter(type,val,btn){
   const groupMap={img:'fImgG',appr:'fApprG',erp:'fErpG',div:'fDivG',bu:'fBuG',edad:'fEdadG',gen:'fGenG'};
   document.querySelectorAll('#'+groupMap[type]+' .fbtn').forEach(b=>b.classList.remove('active'));
@@ -401,6 +525,7 @@ function render(){
 function card(p){
   const nt=p.tallas_ply?p.tallas_ply.length:Object.keys(p.tallas).length;
   const ns=Object.keys(p.tallas).length;
+  const extraMeta=[p.retail_intro_date!=='Sin dato'?p.retail_intro_date:null,p.season!=='Sin dato'?p.season:null].filter(Boolean).join(' · ');
   const img=p.imagen
     ?`<img class="card-img" src="${p.imagen}" loading="lazy" onerror="this.outerHTML='<div class=card-ph><div class=card-ph-txt>IMG NO CARGA</div></div>'">`
     :`<div class="card-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg><div class="card-ph-txt">SIN IMAGEN<br>EN PLYTIX</div></div>`;
@@ -415,7 +540,7 @@ function card(p){
       <div class="card-name">${p.nombre}</div>
       <div class="card-sku">${p.sku}</div>
       <div class="card-meta">${p.division} · ${p.tipo}</div>
-      <div class="card-meta">${p.retail_intro_date} · ${p.season}</div>
+      ${extraMeta?`<div class="card-meta">${extraMeta}</div>`:''}
       <div class="card-tallas-line">${ns}/${nt} tallas con stock</div>
       <div class="card-status">
         <div class="cs-row"><span class="cs-dot ${p.approval}"></span><span class="cs-lbl">Approval:</span> <span class="cs-val ${p.approval}">${ESTSHORT[p.approval]}</span></div>
